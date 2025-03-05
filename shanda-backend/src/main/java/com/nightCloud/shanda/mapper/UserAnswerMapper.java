@@ -1,7 +1,7 @@
-package generator.mapper;
+package com.nightCloud.shanda.mapper;
 
-import generator.domain.UserAnswer;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.nightCloud.shanda.model.entity.UserAnswer;
 
 /**
 * @author Lenovo

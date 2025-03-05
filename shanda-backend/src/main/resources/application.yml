@@ -1,6 +1,5 @@
 # 公共配置文件
-# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
-# @from <a href="https://yupi.icu">编程导航知识星球</a>
+# @author nightCloud
 spring:
   application:
     name: shanda-backend
@@ -74,3 +73,7 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.nightCloud.shanda.controller
+
+# AI 配置
+ai:
+  apiKey: "2cd30efc70284347b275400452779450.TuosPBYIxwkLUzyM"

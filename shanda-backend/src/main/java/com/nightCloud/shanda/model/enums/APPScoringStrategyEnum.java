@@ -7,22 +7,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 审核状态枚举
+ * App 评分策略枚举
  *
  * @author NightCloud
  * @Date 2025/2/26
  */
 
-public enum ReviewStatusEnum {
+public enum AppScoringStrategyEnum {
 
-    REVIEWING("审核中", 0),
-    PASS("通过", 1),
-    REJECT("拒绝", 2);
+    CUSTOM("自定义", 0),
+    AI("AI", 1);
 
     private final String text;
     private final int value;
 
-    ReviewStatusEnum(String text, int value) {
+    AppScoringStrategyEnum(String text, int value) {
         this.text = text;
         this.value = value;
     }
@@ -33,11 +32,11 @@ public enum ReviewStatusEnum {
      * @param value
      * @ return
      */
-    public static ReviewStatusEnum getEnumByValue(Integer value) {
+    public static AppScoringStrategyEnum getEnumByValue(Integer value) {
         if (ObjectUtil.isEmpty(value)) {
             return null;
         }
-        for (ReviewStatusEnum anEnum : ReviewStatusEnum.values()) {
+        for (AppScoringStrategyEnum anEnum : AppScoringStrategyEnum.values()) {
             if (anEnum.value == value) {
                 return anEnum;
             }

@@ -6,16 +6,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum ReviewStatusEnum {
+/**
+ * 应用类型枚举
+ *
+ * @author NightCloud
+ * @Date 2025/2/26
+ */
 
-    REVIEWING("审核中", 0),
-    PASS("通过", 1),
-    REJECT("拒绝", 2);
+public enum AppTypeEnum {
+
+    SCORE("得分类", 0),
+    TEST("测评类", 1);
 
     private final String text;
     private final int value;
 
-    ReviewStatusEnum(String text, int value) {
+    AppTypeEnum(String text, int value) {
         this.text = text;
         this.value = value;
     }
@@ -26,11 +32,11 @@ public enum ReviewStatusEnum {
      * @param value
      * @ return
      */
-    public static ReviewStatusEnum getEnumByValue(Integer value) {
+    public static AppTypeEnum getEnumByValue(Integer value) {
         if (ObjectUtil.isEmpty(value)) {
             return null;
         }
-        for (ReviewStatusEnum anEnum : ReviewStatusEnum.values()) {
+        for (AppTypeEnum anEnum : AppTypeEnum.values()) {
             if (anEnum.value == value) {
                 return anEnum;
             }

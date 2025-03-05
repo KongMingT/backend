@@ -1,5 +1,6 @@
 package com.nightCloud.shanda.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nightCloud.shanda.annotation.AuthCheck;
 import com.nightCloud.shanda.common.BaseResponse;
@@ -13,23 +14,29 @@ import com.nightCloud.shanda.model.dto.userAnswer.UserAnswerAddRequest;
 import com.nightCloud.shanda.model.dto.userAnswer.UserAnswerEditRequest;
 import com.nightCloud.shanda.model.dto.userAnswer.UserAnswerQueryRequest;
 import com.nightCloud.shanda.model.dto.userAnswer.UserAnswerUpdateRequest;
+import com.nightCloud.shanda.model.entity.App;
 import com.nightCloud.shanda.model.entity.UserAnswer;
 import com.nightCloud.shanda.model.entity.User;
+import com.nightCloud.shanda.model.enums.ReviewStatusEnum;
 import com.nightCloud.shanda.model.vo.UserAnswerVO;
+import com.nightCloud.shanda.scoring.ScoringStrategy;
+import com.nightCloud.shanda.scoring.ScoringStrategyExecutor;
+import com.nightCloud.shanda.service.AppService;
 import com.nightCloud.shanda.service.UserAnswerService;
 import com.nightCloud.shanda.service.UserService;
+import com.nightCloud.shanda.service.impl.AppServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 用户答案接口
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
  */
 @RestController
 @RequestMapping("/userAnswer")
@@ -41,6 +48,12 @@ public class UserAnswerController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private AppService appService;
+
+    @Resource
+    private ScoringStrategyExecutor scoringStrategyExecutor;
 
     // region 增删改查
 
@@ -54,12 +67,21 @@ public class UserAnswerController {
     @PostMapping("/add")
     public BaseResponse<Long> addUserAnswer(@RequestBody UserAnswerAddRequest userAnswerAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(userAnswerAddRequest == null, ErrorCode.PARAMS_ERROR);
-        // todo 在此处将实体类和 DTO 进行转换
+        // 在此处将实体类和 DTO 进行转换
         UserAnswer userAnswer = new UserAnswer();
         BeanUtils.copyProperties(userAnswerAddRequest, userAnswer);
+        List<String> choices = userAnswerAddRequest.getChoices();
+        userAnswer.setChoices(JSONUtil.toJsonStr(choices));
         // 数据校验
         userAnswerService.validUserAnswer(userAnswer, true);
-        // todo 填充默认值
+        // 判断 app 是否存在
+        Long appId = userAnswerAddRequest.getAppId();
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
+        if (!ReviewStatusEnum.PASS.equals(ReviewStatusEnum.getEnumByValue(app.getReviewStatus()))) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "该应用尚未通过审核");
+        }
+        // 填充默认值
         User loginUser = userService.getLoginUser(request);
         userAnswer.setUserId(loginUser.getId());
         // 写入数据库
@@ -67,6 +89,15 @@ public class UserAnswerController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         // 返回新写入的数据 id
         long newUserAnswerId = userAnswer.getId();
+        // 调用评分模块直接返回结果
+        try {
+            UserAnswer userAnswerWithResult = scoringStrategyExecutor.doScore(choices, app);
+            userAnswerWithResult.setId(newUserAnswerId);
+            userAnswerService.updateById(userAnswerWithResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,"评分错误");
+        }
         return ResultUtils.success(newUserAnswerId);
     }
 

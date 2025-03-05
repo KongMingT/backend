@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 全局执行器
+ * 评分策略全局执行器
  * 执行不同策略
  */
 @Service

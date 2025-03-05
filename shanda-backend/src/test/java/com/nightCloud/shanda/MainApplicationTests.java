@@ -1,13 +1,17 @@
 package com.nightCloud.shanda;
 
+import com.nightCloud.shanda.model.entity.User;
+import com.nightCloud.shanda.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 主类测试
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ *
  */
 @SpringBootTest
 class MainApplicationTests {
