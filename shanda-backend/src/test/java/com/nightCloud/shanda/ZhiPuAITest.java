@@ -1,5 +1,7 @@
 package com.nightCloud.shanda;
 
+import com.nightCloud.shanda.model.entity.App;
+import com.nightCloud.shanda.model.enums.AppTypeEnum;
 import com.zhipu.oapi.ClientV4;
 import com.zhipu.oapi.Constants;
 import com.zhipu.oapi.service.v4.model.ChatCompletionRequest;
@@ -18,6 +20,7 @@ public class ZhiPuAITest {
 
     @Resource
     private ClientV4 clientV4;
+
     @Test
     public void test() {
         // 构造请求
